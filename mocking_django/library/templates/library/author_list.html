@@ -1,0 +1,16 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Author index{% endblock %}
+
+{% block content %}
+    {% if object_list %}
+        <ul>
+            {% for author in object_list %}
+                <li>{{ author.name }}</li>
+            {% endfor %}
+        </ul>
+        <p>Or: <a href="{% url "library.views.authors.add_author" %}">add an author</a>
+    {% else %}
+        <p>Couldn't find any authors. Maybe you want to <a href="{% url "library.views.authors.add_author" %}">add an author</a>?</p>
+    {% endif %}
+{% endblock %}

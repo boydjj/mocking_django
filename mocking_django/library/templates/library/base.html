@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head><title>My personal library</title></head>
+<body>
+    <h1>{% block title %}{% endblock %}</h1>
+
+    <div id="content">
+    {% block content %}
+    {% endblock %}
+    </div>
+
+<footer>
+    <div id="copyright">&copy; 2013 Jeremy Boyd</div>
+    <div id="home"><a href="{% url "index" %}">Home</a></div>
+</footer>
+</body>
+</html>

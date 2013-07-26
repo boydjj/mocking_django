@@ -1,0 +1,16 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Book index{% endblock %}
+
+{% block content %}
+    {% if object_list %}
+        <ul>
+            {% for book in object_list %}
+                <li><a href="{% url "library.views.books.book_detail" book.id %}">{{ book }}</a></li>
+            {% endfor %}
+        </ul>
+        <p>Or: <a href="{% url "library.views.books.add_book" %}">add a book</a>
+    {% else %}
+        <p>Couldn't find any books. Maybe you want to <a href="{% url "library.views.books.add_book" %}">add a book</a>?</p>
+    {% endif %}
+{% endblock %}

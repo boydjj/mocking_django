@@ -1,0 +1,15 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Detail for {{ book }}{% endblock %}
+
+{% block content %}
+
+Page length: {{ book.page_length }}<br>
+
+<ul>
+    {% for author in book.authors.all %}
+        <li>{{ author.name }}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Add an author{% endblock %}
+
+{% block content %}
+<form action="" method="post">
+    {% csrf_token %}
+    <label for="author_name_input">Author's name:</label>
+    <input type="text" id="author_name_input" name="author_name">
+
+    <input type="submit" value="Add author">
+</form>
+
+{% endblock %}

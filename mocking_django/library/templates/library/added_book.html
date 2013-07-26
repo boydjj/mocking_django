@@ -1,0 +1,7 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Book added{% endblock %}
+
+{% block content %}
+<p>Okay, we added a book named {{ book }}. Maybe you want to <a href="{% url "library.views.books.book_index" %}">view the list of books again</a>?</p>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'library/base.html' %}
+
+{% block title %}My personal library{% endblock %}
+
+{% block content %}
+<ul>
+    <li><a href="{% url "library.views.books.book_index" %}">Books</a></li>
+    <li><a href="{% url "library.views.authors.author_index" %}">Authors</a></li>
+</ul>
+{% endblock %}
