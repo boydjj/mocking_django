@@ -1,4 +1,4 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from library.forms import BookForm
 from library.models import Book
@@ -14,4 +14,4 @@ def add_book(request):
         return render_to_response('library/added_book.html', {'book': new_book})
 
 def book_detail(request, book_id):
-    return render_to_response('library/book_detail.html', {'book': Book.objects.get(pk=book_id)})
+    return render_to_response('library/book_detail.html', {'book': get_object_or_404(Book, id=book_id)})
