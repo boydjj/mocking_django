@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from django.views.generic import TemplateView, ListView
 
 from library import models as library_models
-from views.authors import AddAuthorView
+from library.views.authors import AddAuthorView
 
 urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='library/index.html'), name='index'),
