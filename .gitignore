@@ -2,4 +2,4 @@
 __pycache__
 .idea
 
-*.db
+mocking_django/mocking_django.db
