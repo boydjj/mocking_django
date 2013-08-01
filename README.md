@@ -22,18 +22,24 @@ You should be able to run this application with relative ease using `virtualenv`
     Quit the server with CONTROL-C.
 
 
-
-
 Running the tests
 -----------------
-To run the standard Django tests for the `library` app, do the usual:
+To run all tests for the `library` app, do the usual:
 
     $ pwd
-    /path/to/this/repository
-    $ python mocking_django/manage.py test library
+    /path/to/this/repository/mocking_django
+    $ python manage.py test library
 
-To run the pytest- and mock-based unit tests for the same app, do this:
+To run only the 'traditional' Django tests, you'll have to select them individually:
 
     $ pwd
-    /path/to/this/repository
-    $ DJANGO_SETTINGS_MODULE=mocking_django.settings_test_unit py.test mocking_django/library/
+    /path/to/this/repository/mocking_django
+    $ python manage.py test library.BookDetailTestCase library.AddBookTestCase
+
+To run the mock-based tests that don't ever access the DB, you'll need to select them similarly:
+
+    $ pwd
+    /path/to/this/repository/mocking_django
+    $ python manage.py test library.BookDetailUnitTestCase library.AddBookUnitTestCase --settings=mocking_django.settings_test_unit
+
+Note the addition of the `--settings` flag. `settings_test_unit.py` changes the test runner so it doesn't do anything with the DB and defines some (relatively) innocuous settings. You can always run the 'true' unit tests without this flag, but I prefer to run with settings specific to unit tests that prove to me that nothing is accessing any external resources.

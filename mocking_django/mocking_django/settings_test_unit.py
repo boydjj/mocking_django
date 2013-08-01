@@ -1,3 +1,5 @@
+TEST_RUNNER = 'mocking_django.unit_test_runner.NoDbTestRunner'
+
 ROOT_URLCONF = 'mocking_django.urls'
 
 SECRET_KEY = 'abcd'

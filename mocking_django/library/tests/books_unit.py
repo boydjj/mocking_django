@@ -1,20 +1,21 @@
 from django.http import HttpResponse, Http404
-from django.template import RequestContext
-from django.test import RequestFactory
-import pytest
-from library.views.books import book_detail, add_book
+from django.test import SimpleTestCase, RequestFactory
 
 from mock import patch, Mock
+
 from library.models import Book
+from library.views.books import book_detail, add_book
+
+__all__ = ['BookDetailUnitTestCase', 'AddBookUnitTestCase']
 
 
-class TestBookDetail(object):
+class BookDetailUnitTestCase(SimpleTestCase):
     """
     Test all the same portions of our book_detail view as the functional tests,
     but without DB access.
     """
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         # Django's RequestFactory builds requests we can just pass into views
         cls.rf = RequestFactory()
 
@@ -45,7 +46,7 @@ class TestBookDetail(object):
                 response = book_detail(request, 1)
 
         # Let's make sure we got a 200 and that we used the right template
-        assert response.status_code == 200
+        self.assertEqual(response.status_code, 200)
         mock_render_to_response.assert_called_with('library/book_detail.html', {'book': mock_get_object_or_404.return_value})
 
         # Let's validate that get_object_or_404 was called with the right args
@@ -75,7 +76,7 @@ class TestBookDetail(object):
 
         expected = '<h1>Detail for The Left Hand of Darkness</h1>'
 
-        assert expected in response.content
+        self.assertInHTML(expected, response.content)
 
     def test_detail_returns_404_for_nonexistent_book(self):
         """
@@ -90,21 +91,20 @@ class TestBookDetail(object):
             mock_get_object_or_404.side_effect = Http404('No Book matches the given query.')
 
             # Now call book_detail and confirm we got a 404 exception
-            with pytest.raises(Http404):
-                book_detail(request, 1)
+            self.assertRaises(Http404, book_detail, request, 1)
 
 
-class TestAddBook(object):
+class AddBookUnitTestCase(SimpleTestCase):
     """
     Test all the same portions of our add_book view as our functional tests,
     but without DB access.
     """
     @classmethod
-    def setup_class(cls):
+    def setUpClass(cls):
         cls.rf = RequestFactory()
         cls.add_book_url = '/fake/path/to/books/add/'
 
-    def setup_method(self, method):
+    def setUp(self):
         """
         Demonstrate a new way to patch objects: using the start() and stop()
         methods of the patchers returned by patch().
@@ -115,7 +115,7 @@ class TestAddBook(object):
         self.mock_BookForm = self.BookForm_patcher.start()
         self.BookForm_instance = self.mock_BookForm.return_value
 
-    def teardown_method(self, method):
+    def tearDown(self):
         self.BookForm_patcher.stop()
 
     def test_get_returns_correct_template(self):
@@ -141,18 +141,19 @@ class TestAddBook(object):
         request = self.rf.post(self.add_book_url, {'title': 'The Left Hand of Darkness', 'page_length': 304, 'authors': [1, 2]})
         response = add_book(request)
         expected = '<h1>Book added</h1>'
-        assert expected in response.content
+
+        self.assertInHTML(expected, response.content)
 
     # These next two tests don't make a lot of sense, since we're sort of
     # forcing the issue. I'm including them only for parity.
     def test_post_invalid_author_raises_ValueError(self):
         request = self.rf.post(self.add_book_url, {'title': 'The Left Hand of Darkness', 'page_length': 304, 'authors': [3]})
         self.BookForm_instance.save.side_effect = ValueError
-        with pytest.raises(ValueError):
-            add_book(request)
+
+        self.assertRaises(ValueError, add_book, request)
 
     def test_post_non_string_page_length_raises_ValueError(self):
         request = self.rf.post(self.add_book_url, {'title': 'The Left Hand of Darkness', 'page_length': 'abcd', 'authors': [1, 2]})
         self.BookForm_instance.save.side_effect = ValueError
-        with pytest.raises(ValueError):
-            add_book(request)
+
+        self.assertRaises(ValueError, add_book, request)
