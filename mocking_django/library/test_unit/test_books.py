@@ -1,7 +1,8 @@
 from django.http import HttpResponse, Http404
+from django.template import RequestContext
 from django.test import RequestFactory
 import pytest
-from library.views.books import book_detail
+from library.views.books import book_detail, add_book
 
 from mock import patch, Mock
 from library.models import Book
@@ -12,15 +13,16 @@ class TestBookDetail(object):
     Test all the same portions of our book_detail view as the functional tests,
     but without DB access.
     """
-    def setup_method(self, method):
+    @classmethod
+    def setup_class(cls):
         # Django's RequestFactory builds requests we can just pass into views
-        self.rf = RequestFactory()
+        cls.rf = RequestFactory()
 
         # Please note that these are *totally* unnecessary for the functionality
         # of our view, since we'll be patching all the relevant helpers anyway.
         # However, RequestFactory's .get() method requires a URL.
-        self.valid_book_url = '/fake/url/to/prove/a/point/'
-        self.invalid_book_url = '/another/fake/url/that/has/no/id/'
+        cls.valid_book_url = '/fake/url/to/prove/a/point/'
+        cls.invalid_book_url = '/another/fake/url/that/has/no/id/'
 
     def test_detail_view_returns_ok(self):
         """
@@ -90,3 +92,67 @@ class TestBookDetail(object):
             # Now call book_detail and confirm we got a 404 exception
             with pytest.raises(Http404):
                 book_detail(request, 1)
+
+
+class TestAddBook(object):
+    """
+    Test all the same portions of our add_book view as our functional tests,
+    but without DB access.
+    """
+    @classmethod
+    def setup_class(cls):
+        cls.rf = RequestFactory()
+        cls.add_book_url = '/fake/path/to/books/add/'
+
+    def setup_method(self, method):
+        """
+        Demonstrate a new way to patch objects: using the start() and stop()
+        methods of the patchers returned by patch().
+        """
+        # We're going to patch BookForm in all our tests, so let's do it in our
+        # method setup
+        self.BookForm_patcher = patch('library.views.books.BookForm')
+        self.mock_BookForm = self.BookForm_patcher.start()
+        self.BookForm_instance = self.mock_BookForm.return_value
+
+    def teardown_method(self, method):
+        self.BookForm_patcher.stop()
+
+    def test_get_returns_correct_template(self):
+        """
+        Let's do something a bit different here. Instead of using the actual
+        template rendered by our view (which, as noted above, isn't ideal),
+        let's patch render_to_response and make sure that it's being called with
+        the right template and RequestContext instance. Similarly, we'll patch
+        RequestContext and make sure it's being called with our request and an
+        instance of BookForm.
+        """
+        request = self.rf.get(self.add_book_url)
+
+        with patch('library.views.books.render_to_response') as mock_render_to_response:
+            with patch('library.views.books.RequestContext') as mock_RequestContext:
+                # Note we don't need the response object here, so we don't save it.
+                add_book(request)
+
+        mock_RequestContext.assert_called_with(request, {'form': self.BookForm_instance})
+        mock_render_to_response.assert_called_with('library/add_book.html', mock_RequestContext.return_value)
+
+    def test_post_happy_path(self):
+        request = self.rf.post(self.add_book_url, {'title': 'The Left Hand of Darkness', 'page_length': 304, 'authors': [1, 2]})
+        response = add_book(request)
+        expected = '<h1>Book added</h1>'
+        assert expected in response.content
+
+    # These next two tests don't make a lot of sense, since we're sort of
+    # forcing the issue. I'm including them only for parity.
+    def test_post_invalid_author_raises_ValueError(self):
+        request = self.rf.post(self.add_book_url, {'title': 'The Left Hand of Darkness', 'page_length': 304, 'authors': [3]})
+        self.BookForm_instance.save.side_effect = ValueError
+        with pytest.raises(ValueError):
+            add_book(request)
+
+    def test_post_non_string_page_length_raises_ValueError(self):
+        request = self.rf.post(self.add_book_url, {'title': 'The Left Hand of Darkness', 'page_length': 'abcd', 'authors': [1, 2]})
+        self.BookForm_instance.save.side_effect = ValueError
+        with pytest.raises(ValueError):
+            add_book(request)
