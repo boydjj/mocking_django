@@ -3,3 +3,4 @@ __pycache__
 .idea
 
 mocking_django/mocking_django.db
+mocking_django.db
