@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+from django.views.decorators.csrf import csrf_exempt
 
 from django.views.generic import TemplateView, ListView
 
@@ -15,6 +16,6 @@ urlpatterns = patterns('',
 
     # Authors views - let's keep these class-based
     url(r'^authors/$', ListView.as_view(template_name='library/author_list.html', model=library_models.Author), name='library.views.authors.author_index'),
-    url(r'^authors/add/$', AddAuthorView.as_view(), name='library.views.authors.add_author')
+    url(r'^authors/add/$', csrf_exempt(AddAuthorView.as_view()), name='library.views.authors.add_author')
 
 )

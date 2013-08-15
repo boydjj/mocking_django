@@ -1,7 +1,7 @@
+from mock import patch, Mock
+
 from django.http import HttpResponse, Http404
 from django.test import SimpleTestCase, RequestFactory
-
-from mock import patch, Mock
 
 from library.models import Book
 from library.views.books import book_detail, add_book
@@ -56,9 +56,9 @@ class BookDetailUnitTestCase(SimpleTestCase):
         """
         Validate that our template renders book details correctly.
 
-        N.B.: I don't actually recommend doing this with true unit tests because
-        it relies on filesystem access. It is included here only for parity.
-        Note the settings in settings_test_unit.py marked "BAD FOR UNIT TESTS".
+        N.B.: To make this test work, I've violated the no-FS-access rule by
+        adding a TEMPLATE_LOADERS setting to settings_test_unit.py. This may be
+        convenient when you want to test things about the rendered template.
         """
         request = self.rf.get(self.valid_book_url)
 
@@ -75,6 +75,7 @@ class BookDetailUnitTestCase(SimpleTestCase):
             response = book_detail(request, 1)
 
         expected = '<h1>Detail for The Left Hand of Darkness</h1>'
+
 
         self.assertInHTML(expected, response.content)
 

@@ -14,4 +14,5 @@ def add_book(request):
         return render_to_response('library/added_book.html', {'book': new_book})
 
 def book_detail(request, book_id):
-    return render_to_response('library/book_detail.html', {'book': get_object_or_404(Book, id=book_id)})
+    return render_to_response('library/book_detail.html',
+                              {'book': get_object_or_404(Book, id=book_id)})

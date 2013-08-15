@@ -6,9 +6,8 @@ SECRET_KEY = 'abcd'
 
 DATABASES = {}
 
-# BAD FOR UNIT TESTS - requires filesystem access
+# Don't do this if you're a purist about FS access in your unit tests
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
 )
 
