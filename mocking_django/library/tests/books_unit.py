@@ -76,7 +76,6 @@ class BookDetailUnitTestCase(SimpleTestCase):
 
         expected = '<h1>Detail for The Left Hand of Darkness</h1>'
 
-
         self.assertInHTML(expected, response.content)
 
     def test_detail_returns_404_for_nonexistent_book(self):
